@@ -35,12 +35,17 @@ private:
 
 	Ship* createShip();
 	Coin* createCoin();
+	Vector2f getRandomSpawnPosition(float radius);
+	Vector2f getRandomAsteroidVelocity();
+	bool overlap(Ship*, Coin*);
+	void resetCoin();
 	void handleWindowEvents();
 	void clearWindow();
 	void updateShip(float deltaTime);
 	void updateCoin(float deltaTime);
 	void updateAsteroids(float deltaTime);
 	void createAsteroids(float deltaTime);
+	void resetAsteroid(Asteroid*);
 	void handleCoinPickup();
 	void handleLostCoin();
 	void handleAsteroidCollisions();

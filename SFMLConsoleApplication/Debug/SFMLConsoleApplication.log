@@ -1,9 +1,8 @@
-﻿  Asteroid.cpp
-  Coin.cpp
+﻿  Coin.cpp
+C:\Users\coolk\Documents\Git-Projects\Asteroids_LF\SFMLConsoleApplication\Coin.cpp(38): error C2600: 'Coin::~Coin': cannot define a compiler-generated special member function (must be declared in the class first)
   Game.cpp
+C:\Users\coolk\Documents\Git-Projects\Asteroids_LF\SFMLConsoleApplication\Game.cpp(71): error C2664: 'Coin::Coin(Coin &&)': cannot convert argument 1 from 'sf::RenderWindow' to 'const Coin &'
+  C:\Users\coolk\Documents\Git-Projects\Asteroids_LF\SFMLConsoleApplication\Game.cpp(71): note: Reason: cannot convert from 'sf::RenderWindow' to 'const Coin'
+  C:\Users\coolk\Documents\Git-Projects\Asteroids_LF\SFMLConsoleApplication\Game.cpp(71): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
   Main.cpp
-  Ship.cpp
   Generating Code...
-C:\Users\coolk\Desktop\Asteroids\SFMLConsoleApplication\Game.cpp(71): warning C4172: returning address of local variable or temporary: coin
-C:\Users\coolk\Desktop\Asteroids\SFMLConsoleApplication\Game.cpp(65): warning C4172: returning address of local variable or temporary: ship
-  SFMLConsoleApplication.vcxproj -> C:\Users\coolk\Desktop\Asteroids\Debug\SFMLConsoleApplication.exe
