@@ -37,7 +37,6 @@ Game::Game() :
 	initilizeRandomizer();
 }
 
-
 void Game::run()
 {
 	Clock frameClock;
@@ -53,8 +52,8 @@ void Game::run()
 		handleCoinPickup();
 		handleLostCoin();
 		handleAsteroidCollisions();
-		drawShip();
 		drawCoin();
+		drawShip();
 		drawAsteroids();
 		displayWindow();
 	}
@@ -62,13 +61,16 @@ void Game::run()
 
 Ship* Game::createShip()
 {
-	Ship* ship = new Ship;
+	float x = mRenderWindow.getSize().x * 0.5f;
+
+	Ship* ship = new Ship(mRenderWindow, mShipTexture, Vector2f(x, 300), SHIP_VELOCITY, SHIP_RADIUS);
 	return ship;
 }
 
 Coin* Game::createCoin()
 {
-	Coin* coin = new Coin(mRenderWindow);
+	float x = mRenderWindow.getSize().x * 0.5f;
+	Coin* coin = new Coin(mRenderWindow, mCoinTexture, Vector2f(x, 300), Vector2f(0, COIN_VELOCITY), COIN_RADIUS);
 	return coin;
 }
 
@@ -93,7 +95,7 @@ void Game::handleWindowEvents()
 
 void Game::clearWindow()
 {
-
+	mRenderWindow.clear();
 }
 
 void Game::updateShip(float deltaTime)
@@ -114,13 +116,11 @@ void Game::updateAsteroids(float deltaTime)
 		Asteroid* asteroid = mAsteroids[i];
 		asteroid->update(deltaTime);
 
-		if (maxY < asteroid->getPosition().y)	//Dont forget to setOrigin to middle of every sprite in the game.
+		if (maxY < asteroid->getPosition().y)
 		{
 			resetAsteroid(asteroid);
 		}
 	}
-
-
 }
 
 void Game::createAsteroids(float deltaTime)
@@ -136,30 +136,50 @@ void Game::createAsteroids(float deltaTime)
 
 void Game::resetAsteroid(Asteroid* asteroid)
 {
-	//asteroid->setPosition(	some random x value above yMax	)
+	float offsetY = -ASTEROID_RADIUS;
+	float offsetX = (float)(rand() % mRenderWindow.getSize().x);
+
+	asteroid->setPosition(Vector2f(offsetX, offsetY));
 }
 
 Vector2f Game::getRandomSpawnPosition(float objectRadius)
 {
-	return Vector2f(0.0f, 0.0f);
+	float offsetX = (float)(rand() % mRenderWindow.getSize().x);
+
+	return Vector2f(offsetX, -objectRadius);
 }
 
 Vector2f Game::getRandomAsteroidVelocity()
 {
-	//min: ASTEROID_MIN_VELOCITY
-	//max: ASTEROID_MIN_VELOCITY + ASTEROID_DELTA_VELOCITY
-	float yVelocity = 0;//= rand mellan min och max.
+	float yVelocity = rand() % (int)(ASTEROID_MIN_VELOCITY + ASTEROID_DELTA_VELOCITY - ASTEROID_MIN_VELOCITY + 1) + ASTEROID_MIN_VELOCITY;
 	return Vector2f(0.0f, yVelocity);
 }
 
-bool Game::overlap(Ship* ship, Coin* coin)
+bool Game::overlap(Ship * ship, Coin * coin)
 {
-	//Pythagoras sats..
-	//deltaX = shipX - coinX
-	//deltaY = shipY - coinY
-	//om deltaX^2 + deltaY^2 < (shipRadius + coinRadius)^2
-	//kollision:
-	return true;
+	float deltaX = ship->getPosition().x - coin->getPosition().x;
+	float deltaY = ship->getPosition().y - coin->getPosition().y;
+
+	if (pow(deltaX, 2) + pow(deltaY, 2) < pow(SHIP_RADIUS + COIN_RADIUS, 2))
+	{
+		return true;
+	}
+	return false;
+}
+
+bool Game::overlap(Ship * ship, AsteroidVector asteroids)
+{
+	for (auto asteroid : asteroids)
+	{
+		float deltaX = ship->getPosition().x - asteroid->getPosition().x;
+		float deltaY = ship->getPosition().y - asteroid->getPosition().y;
+
+		if (pow(deltaX, 2) + pow(deltaY, 2) < pow(SHIP_RADIUS + ASTEROID_RADIUS, 2))
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 void Game::handleCoinPickup()
@@ -170,30 +190,35 @@ void Game::handleCoinPickup()
 	}
 }
 
-void Game::resetCoin() 
+void Game::resetCoin()
 {
-	
+	float offsetY = -COIN_RADIUS;
+	float offsetX = (float)(rand() % mRenderWindow.getSize().x);
+
+	mCoin->setPosition(Vector2f(offsetX, offsetY));
 }
 
 void Game::handleLostCoin()
 {
 	float maxY = COIN_RADIUS + mRenderWindow.getSize().y;
-	
+
 	if (maxY < mCoin->getPosition().y)
 	{
 		mGameOver = true;
 	}
-
 }
 
 void Game::handleAsteroidCollisions()
 {
-
+	if (overlap(mShip, mAsteroids))
+	{
+		mGameOver = true;
+	}
 }
 
 void Game::drawShip()
 {
-
+	mShip->draw();
 }
 
 void Game::drawCoin()
@@ -203,7 +228,10 @@ void Game::drawCoin()
 
 void Game::drawAsteroids()
 {
-
+	for (auto asteroid : mAsteroids)
+	{
+		asteroid->draw();
+	}
 }
 
 void Game::displayWindow()

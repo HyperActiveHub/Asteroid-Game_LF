@@ -17,27 +17,23 @@ class Game
 {
 public:
 	Game();
-
 	void run();
 
-
 private:
-
 	RenderWindow mRenderWindow;
 	Texture mShipTexture, mCoinTexture, mAsteroidTexture;
-	Ship* mShip;
-	Coin* mCoin;
 	AsteroidVector mAsteroids;
 	float mSpawnTime;
 	bool mGameOver;
-
-	Texture loadTexture(std::string fileName);
-
+	Ship* mShip;
+	Coin* mCoin;
 	Ship* createShip();
 	Coin* createCoin();
+	Texture loadTexture(std::string fileName);
 	Vector2f getRandomSpawnPosition(float radius);
 	Vector2f getRandomAsteroidVelocity();
 	bool overlap(Ship*, Coin*);
+	bool overlap(Ship* ship, AsteroidVector asteroids);
 	void resetCoin();
 	void handleWindowEvents();
 	void clearWindow();
