@@ -62,8 +62,8 @@ void Game::run()
 Ship* Game::createShip()
 {
 	float x = mRenderWindow.getSize().x * 0.5f;
-
-	Ship* ship = new Ship(mRenderWindow, mShipTexture, Vector2f(x, 300), SHIP_VELOCITY, SHIP_RADIUS);
+	float y = mRenderWindow.getSize().y * 0.5f;
+	Ship* ship = new Ship(mRenderWindow, mShipTexture, Vector2f(x, y), SHIP_VELOCITY, SHIP_RADIUS);
 	return ship;
 }
 

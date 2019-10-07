@@ -8,6 +8,7 @@ class Asteroid
 {
 public:
 	Asteroid(RenderWindow&, Texture&, Vector2f spawnPos, Vector2f velocity, float radius);
+	~Asteroid();
 	void update(float deltaTime);
 	void setPosition(Vector2f pos);
 	void draw();

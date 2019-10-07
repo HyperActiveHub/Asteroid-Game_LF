@@ -8,6 +8,7 @@ class Ship
 public:
 	void update(float deltaTime);
 	Ship(RenderWindow&, Texture& tex, Vector2f pos, float velocity, float radius);
+	~Ship(); 
 	void draw();
 	float getRadius();
 	Vector2f getPosition();

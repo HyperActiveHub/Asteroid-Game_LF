@@ -12,6 +12,11 @@ Asteroid::Asteroid(RenderWindow& window, Texture& tex, Vector2f spawnPos, Vector
 	mSprite.setPosition(spawnPos);
 }
 
+Asteroid::~Asteroid()
+{
+
+}
+
 void Asteroid::update(float deltaTime)
 {
 	mSprite.move(deltaTime * mVelocity);

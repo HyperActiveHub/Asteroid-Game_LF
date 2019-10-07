@@ -12,6 +12,11 @@ Ship::Ship(RenderWindow& window, Texture& tex, Vector2f pos, float velocity, flo
 	mSprite.setPosition(pos);
 }
 
+Ship::~Ship()
+{
+	delete this;
+}
+
 void Ship::update(float deltaTime)
 {
 	updatePosition(deltaTime);
