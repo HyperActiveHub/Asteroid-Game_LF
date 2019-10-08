@@ -1,5 +1,5 @@
 #include "Asteroid.h"
-
+#include <iostream>
 using namespace sf;
 
 Asteroid::Asteroid(RenderWindow& window, Texture& tex, Vector2f spawnPos, Vector2f velocity, float radius) :
@@ -14,7 +14,7 @@ Asteroid::Asteroid(RenderWindow& window, Texture& tex, Vector2f spawnPos, Vector
 
 Asteroid::~Asteroid()
 {
-
+	std::cout << "Asteroid cleared from memory" << std::endl;
 }
 
 void Asteroid::update(float deltaTime)

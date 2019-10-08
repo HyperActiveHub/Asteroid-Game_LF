@@ -8,6 +8,7 @@ class Coin
 {
 public:
 	Coin(RenderWindow&, Texture& tex, Vector2f pos, Vector2f velocity, float radius);
+	~Coin();
 	void update(float deltaTime);
 	void draw();
 	Vector2f getPosition();

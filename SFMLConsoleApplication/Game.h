@@ -41,6 +41,7 @@ private:
 	void updateCoin(float deltaTime);
 	void updateAsteroids(float deltaTime);
 	void createAsteroids(float deltaTime);
+	void destroyGameobjects();
 	void resetAsteroid(Asteroid*);
 	void handleCoinPickup();
 	void handleLostCoin();

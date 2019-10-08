@@ -5,6 +5,9 @@ using namespace std;
 
 namespace
 {
+	enum GameState { ingame, gameOver, paused };
+	GameState currentState = ingame;
+
 	const string windowTitle = "Asteroids";
 	const VideoMode videoMode = VideoMode(768, 1024);
 	const Color backgroundColor = Color::Black;
@@ -15,6 +18,7 @@ namespace
 
 	const float COIN_RADIUS = 16.0f;
 	const float COIN_VELOCITY = 80.0f;
+	const float COIN_SPAWN_HEIGHT = 920.0f;
 
 	const float ASTEROID_RADIUS = 32.0f;
 	const float ASTEROID_SPAWN_DELTA = 2.0f;
@@ -40,22 +44,38 @@ Game::Game() :
 void Game::run()
 {
 	Clock frameClock;
-	while (mRenderWindow.isOpen() && !mGameOver)
+
+	switch (currentState)
 	{
-		float deltaTime = frameClock.restart().asSeconds();
-		handleWindowEvents();
-		clearWindow();
-		updateShip(deltaTime);
-		updateCoin(deltaTime);
-		updateAsteroids(deltaTime);
-		createAsteroids(deltaTime);
-		handleCoinPickup();
-		handleLostCoin();
-		handleAsteroidCollisions();
-		drawCoin();
-		drawShip();
-		drawAsteroids();
-		displayWindow();
+	case ingame:
+		while (mRenderWindow.isOpen() && !mGameOver)
+		{
+			float deltaTime = frameClock.restart().asSeconds();
+			handleWindowEvents();
+			clearWindow();
+			updateShip(deltaTime);
+			updateCoin(deltaTime);
+			updateAsteroids(deltaTime);
+			createAsteroids(deltaTime);
+			handleCoinPickup();
+			handleLostCoin();
+			handleAsteroidCollisions();
+			drawCoin();
+			drawShip();
+			drawAsteroids();
+			displayWindow();
+		}
+		//Only reached if mGameOver = true
+		destroyGameobjects();
+	break;
+
+	case paused:
+
+		break;
+
+	case gameOver:
+
+		break;
 	}
 }
 
@@ -70,7 +90,7 @@ Ship* Game::createShip()
 Coin* Game::createCoin()
 {
 	float x = mRenderWindow.getSize().x * 0.5f;
-	Coin* coin = new Coin(mRenderWindow, mCoinTexture, Vector2f(x, 300), Vector2f(0, COIN_VELOCITY), COIN_RADIUS);
+	Coin* coin = new Coin(mRenderWindow, mCoinTexture, Vector2f(x, -COIN_SPAWN_HEIGHT), Vector2f(0, COIN_VELOCITY), COIN_RADIUS);
 	return coin;
 }
 
@@ -134,7 +154,18 @@ void Game::createAsteroids(float deltaTime)
 	}
 }
 
-void Game::resetAsteroid(Asteroid* asteroid)
+void Game::destroyGameobjects()
+{
+	delete mShip;
+	delete mCoin;
+	for (auto a : mAsteroids)
+	{
+		delete a;
+	}
+	mAsteroids.clear();
+}
+
+void Game::resetAsteroid(Asteroid * asteroid)
 {
 	float offsetY = -ASTEROID_RADIUS;
 	float offsetX = (float)(rand() % mRenderWindow.getSize().x);
@@ -192,7 +223,7 @@ void Game::handleCoinPickup()
 
 void Game::resetCoin()
 {
-	float offsetY = -COIN_RADIUS;
+	float offsetY = -COIN_SPAWN_HEIGHT;
 	float offsetX = (float)(rand() % mRenderWindow.getSize().x);
 
 	mCoin->setPosition(Vector2f(offsetX, offsetY));
@@ -212,6 +243,7 @@ void Game::handleAsteroidCollisions()
 {
 	if (overlap(mShip, mAsteroids))
 	{
+		//delete mShip;
 		mGameOver = true;
 	}
 }

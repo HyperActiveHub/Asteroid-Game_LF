@@ -16,8 +16,9 @@ public:
 
 private:
 
-	void updatePosition(float deltaTime);
-	void constrainPosition();
+	Vector2f input();
+	void updatePosition(Vector2f input, float deltaTime);
+	void constrainPosition(Vector2f& input);
 	void centerSprite();
 	Sprite mSprite;
 	float mVelocity;

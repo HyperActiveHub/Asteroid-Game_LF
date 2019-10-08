@@ -1,4 +1,5 @@
 #include "Coin.h"
+#include <iostream>
 
 Coin::Coin(RenderWindow& window, Texture& tex, Vector2f pos, Vector2f velocity, float radius) :
 	mRenderWindow(window),
@@ -8,6 +9,11 @@ Coin::Coin(RenderWindow& window, Texture& tex, Vector2f pos, Vector2f velocity, 
 {
 	centerSprite();
 	mSprite.setPosition(pos);
+}
+
+Coin::~Coin()
+{
+	std::cout << "Coin cleared from memory" << std::endl;
 }
 
 void Coin::update(float deltaTime)
