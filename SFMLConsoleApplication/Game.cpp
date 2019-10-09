@@ -35,48 +35,94 @@ Game::Game() :
 	mCoin(createCoin()),
 	mAsteroids(),
 	mSpawnTime(0.0f),
-	mGameOver(false)
+	mGameOver(false),
+	mQuit(false),
+	mFont(loadFont("SHOWG.TTF")),
+	mPauseText(),
+	mGoText(),
+	mRestartText()
 {
 	setFramerateLimit();
 	initilizeRandomizer();
+	textInit();
 }
 
 void Game::run()
 {
 	Clock frameClock;
 
-	switch (currentState)
+	while (mRenderWindow.isOpen())
 	{
-	case ingame:
-		while (mRenderWindow.isOpen() && !mGameOver)
+		switch (currentState)
 		{
-			float deltaTime = frameClock.restart().asSeconds();
+		case ingame:
+			if (!mGameOver)
+			{
+				float deltaTime = frameClock.restart().asSeconds();
+				handleWindowEvents();
+				clearWindow();
+				updateShip(deltaTime);
+				updateCoin(deltaTime);
+				updateAsteroids(deltaTime);
+				createAsteroids(deltaTime);
+				handleCoinPickup();
+				handleLostCoin();
+				handleAsteroidCollisions();
+				drawCoin();
+				drawShip();
+				drawAsteroids();
+				displayWindow();
+			}
+			else
+			{
+				currentState = gameOver;
+			}
+			break;
+
+		case paused:
+
+			frameClock.restart();
+
 			handleWindowEvents();
 			clearWindow();
-			updateShip(deltaTime);
-			updateCoin(deltaTime);
-			updateAsteroids(deltaTime);
-			createAsteroids(deltaTime);
-			handleCoinPickup();
-			handleLostCoin();
-			handleAsteroidCollisions();
 			drawCoin();
 			drawShip();
 			drawAsteroids();
+			mRenderWindow.draw(mPauseText);
 			displayWindow();
+
+			break;
+
+		case gameOver:
+
+			frameClock.restart();
+
+			handleWindowEvents();
+			clearWindow();
+			drawCoin();
+			drawShip();
+			drawAsteroids();
+			mRenderWindow.draw(mGoText);
+			mRenderWindow.draw(mRestartText);
+			displayWindow();
+
+			if (mQuit)
+			{
+				destroyGameobjects();
+				mRenderWindow.close();
+			}
+			break;
 		}
-		//Only reached if mGameOver = true
-		destroyGameobjects();
-	break;
-
-	case paused:
-
-		break;
-
-	case gameOver:
-
-		break;
 	}
+}
+
+void Game::restartGame()
+{
+	destroyGameobjects();
+	mShip = createShip();
+	mCoin = createCoin();
+	mSpawnTime = 0.0f;
+	mGameOver = false;
 }
 
 Ship* Game::createShip()
@@ -101,6 +147,13 @@ Texture Game::loadTexture(string fileName)
 	return tex;
 }
 
+Font Game::loadFont(string fileName)
+{
+	Font font;
+	font.loadFromFile(fileName);
+	return font;
+}
+
 void Game::handleWindowEvents()
 {
 	Event event;
@@ -109,6 +162,30 @@ void Game::handleWindowEvents()
 		if (event.type == Event::Closed)
 		{
 			mRenderWindow.close();
+		}
+
+		if (event.type == Event::KeyPressed)
+		{
+			if (event.key.code == Keyboard::Escape)
+			{
+				if (currentState == GameState::paused)
+				{
+					currentState = ingame;
+				}
+				else if (currentState == GameState::ingame)
+				{
+					currentState = paused;
+				}
+				else if (currentState == GameState::gameOver)
+				{
+					mQuit = true;
+				}
+			}
+			else if (currentState == GameState::gameOver && event.key.code == Keyboard::Space)
+			{
+				restartGame();
+				currentState = ingame;
+			}
 		}
 	}
 }
@@ -156,13 +233,25 @@ void Game::createAsteroids(float deltaTime)
 
 void Game::destroyGameobjects()
 {
-	delete mShip;
-	delete mCoin;
+	destroyObject(mShip);
+	destroyObject(mCoin);
 	for (auto a : mAsteroids)
 	{
-		delete a;
+		destroyObject(a);
 	}
 	mAsteroids.clear();
+}
+
+template<class T>
+void Game::destroyObject(T & pointer)
+{
+	if (pointer != NULL)
+	{
+		delete pointer;
+		pointer = NULL;
+	}
+	else
+		cout << "tried to destroy empty pointer" << endl;
 }
 
 void Game::resetAsteroid(Asteroid * asteroid)
@@ -243,7 +332,6 @@ void Game::handleAsteroidCollisions()
 {
 	if (overlap(mShip, mAsteroids))
 	{
-		//delete mShip;
 		mGameOver = true;
 	}
 }
@@ -279,4 +367,21 @@ void Game::initilizeRandomizer()
 void Game::setFramerateLimit()
 {
 	mRenderWindow.setFramerateLimit(FRAMERATE_LIMIT);
+}
+
+void Game::editText(Text & text, string newText, Vector2f pos, Color color, unsigned int size)
+{
+	text.setString(newText);
+	text.setFont(mFont);
+	text.setCharacterSize(size);
+	text.setFillColor(color);
+	text.setOrigin(text.getLocalBounds().width * 0.5f, text.getLocalBounds().height * 0.5f);
+	text.setPosition(pos);
+}
+
+void Game::textInit()
+{
+	editText(mPauseText, "Paused", mRenderWindow.getView().getCenter(), Color::Red, 64);
+	editText(mGoText, "Game Over", mRenderWindow.getView().getCenter(), Color::Red, 72);
+	editText(mRestartText, "Press 'Space' to restart or 'Escape' to quit.", mGoText.getPosition() + Vector2f(0, 70), Color::White, 20);
 }
